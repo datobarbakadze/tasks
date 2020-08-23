@@ -20,7 +20,7 @@ class TicTacLogic:
 
     def __init__(self):
         self.graph_length = 3
-        self.graph = [[None for i in range(self.graph_length)] for j in range(self.graph_length)]
+        self.graph = [[None for i in range(self.graph_length)] for j in range(self.graph_length)]  #create empty matrix
         self.tik_val = 1
         self.tok_val = 0
         self.draw_val = 2
@@ -39,22 +39,40 @@ class TicTacLogic:
         self.move_count = 0
 
         self.turn = self.tik_val
+
     def clear_graph(self):
+        '''
+            ფუნქცია ასუბთავებს მატრიცას როცა ამის საჭიროება ხდება.
+            მაგ: მოგების ან რესტარტის შემთხვევაში
+        '''
         self.graph = [[None for i in range(self.graph_length)] for j in range(self.graph_length)]
         for i in range(self.graph_length):
             for j in range(self.graph_length):
                 self.graph[i][j] = None
         self.turn = self.tik_val
-
-
+        self.thread_list = list()
 
     def increase_win_count(self,side):
+        '''
+        ფუნქცია ზრდის ქულას მომგები მხარისას, იქნება ეს X(tic) თუ O(tac)
+
+        :param side: ეს პარამეტრი განსაზღვრავს თუ რომელ მხარეს უნდა გაიზარდოს ქულა,
+        მნიშვნელობა აუცილებლად უნდა უდრიდეს ან 1(X)-ს ან 0(O)-ს
+        :return:
+        '''
         if side == self.tik_val:
             self.tik_win_count+=1
         elif side == self.tok_val:
             self.tok_win_count+=1
 
     def coordinates(self,number):
+        '''
+        ფუნქციას გადმოეცემა რიცხვითი მნიშვნელობა რომელიც განსაზღვრავს მატრიცაში მნიშვნელობის მერამდენეობას.
+        მაგ: 0 შეესაბამება [0,0], 1 - [0,1] და ა.შ
+
+        :param number: რიცხვი რომელიც განსაზღვრავს თუ რომელი მატრიცის კოორდინატი უნდა დააბრუნოს ფუნქციამ
+
+        '''
         coord_difiner = 0
         for y in range(self.graph_length):
             for x in range(self.graph_length):
@@ -66,6 +84,15 @@ class TicTacLogic:
                     coord_difiner+=1
 
     def fill(self,y,x,val):
+        '''
+        ფუნქცია ანიჭებს val მნიშვნელობას მატრიცაში არსებულ სივრცეს კონკრეტულ კოორდინატებზე,
+        ასევე ამოწმებს აქვს თუ არა ამ სივრცეს მნიშვნელობა მინიჭებული.
+
+        :param y: ორდინატა (მატრიცის პირველი განზომილება)
+        :param x: აბსცისა (მატრიცის მეორე განზომილება)
+        :param val: მნიშვნელობა რომელიც უნდა იყოს ან 1 ან 0, შესაბამისად X-ისა და O-სა
+        :rtype: bool
+        '''
         if self.graph[y][x] != None:
             return False
         self.graph[y][x] = val
@@ -73,6 +100,12 @@ class TicTacLogic:
 
     # TODO merge tik and tok functions
     def tic_tac(self,position):
+        '''
+        მთავარი ფუნქცია რომელიც გამოიძახება მაშინ როცა ეჭირება ღილაკს X-ის ან O-ს ჩასაწერად
+
+        :param position: რიცხვითი მნიშვნელობა რომელიც განსაზღვრას  coordinates ფუნქციის დახმარებით
+        თუ რომელ ადგილას უნდა ჩაისვას მნიშვნელობა მატრიცაში
+        '''
         try:
             position = int(position)
         except:
@@ -94,13 +127,15 @@ class TicTacLogic:
         self.move_count+=1
         if self.move_count >=(self.graph_length+(self.graph_length-1)):
             self.run_check()
-        # self.print_matrix()
+
     def check(self,axis=None,direction=None):
         '''
-        function for checking the winner
-        :param axis: static value for y or x axis
+        ფუნქცია რომელიც ამოწმებს დაფიქსირდა თუ არა მოგებული
+        ეს ფუნქცია დამოკიდებულია ქვემოტ მოცემულ ოთხი ფუნქციაზე check_x_axis, check_y_axis, check_dyagonal_left, check_dyagonal_right
+
+        :param axis: სტატიკური მნიშვნელობა რომელიც ასრულებს ხან x კოორდინატის როლს ხან კიდევ y isas
         :param direction: 0 = horizontal, 1 = vertical, 2 = dyagonal_left, 3 = dyagonal_right
-        :return:
+        :return:winner | None
         '''
         winner = None;
         for i in range(self.graph_length):
@@ -126,73 +161,93 @@ class TicTacLogic:
         return winner
 
     def check_x_axis(self):
+        '''
+        ფუნქცია რომელიცა ამოწმებს ჰორიზონტალურ გამარჯვებას check ფუნქციის დახმარებით
+        '''
         for y in range(self.graph_length):
             winner = self.check(y,self.direction_h)
             if winner != None:
-                return winner
+                self.mainWinner = winner
             else:
                 continue
         return None
 
     def check_y_axis(self):
+        '''
+        ფუნქცია რომელიცა ამოწმებს ვერტიკალურ გამარჯვებას check ფუნქციის დახმარებით
+        '''
         for x in range(self.graph_length):
             winner = self.check(x,self.direction_v)
             if winner != None:
-                return winner
+                self.mainWinner = winner
             else:
                 continue
         return None
 
     def check_dyagonal_left(self):
-
+        '''
+        ფუნქცია რომელიცა ამოწმებს დიაგონალურ გამარჯვებას check ფუნქციის დახმარებით,
+        ეს დიაგონალი იწყება კოორდინატიდან [0,0]
+        '''
         winner = self.check(None, self.direction_dy_l)
 
         if winner != None:
-            return winner
+            self.mainWinner = winner
         else:
             return None
 
     def check_dyagonal_right(self):
+        '''
+        ფუნქცია რომელიცა ამოწმებს დიაგონალურ გამარჯვებას check ფუნქციის დახმარებით,
+        ეს დიაგონალი იწყება კოორდინატიდან [0,last_y]
+        '''
         winner = self.check(None, self.direction_dy_r)
         if winner != None:
-            return winner
+            self.mainWinner = winner
         else:
             return None
 
     def run_check(self):
-        x_check = self.check_x_axis()
-        if x_check != None:
-            self.mainWinner = x_check
+        '''
+        ფუნქცია უშვებს ყველა გამარჯვების შემამოწმებელ ფუნქციას, multi-threaded გარემოში,
+        ასევე ყველა სრედის დამთავრების შემდეგ ამოწმებს ნიჩიას
+        '''
+        x_check = Thread(target=self.check_x_axis())
+        self.thread_list.append(x_check)
 
-        y_check = self.check_y_axis()
-        if y_check != None:
-            self.mainWinner = y_check
+        y_check = Thread(target=self.check_y_axis())
+        self.thread_list.append(y_check)
 
-        dy_l_check = self.check_dyagonal_left()
-        if dy_l_check != None:
-            self.mainWinner = dy_l_check
+        dy_l_check = Thread(target=self.check_dyagonal_left())
+        self.thread_list.append(dy_l_check)
 
-        dy_r_check = self.check_dyagonal_right()
-        if dy_r_check != None:
-            self.mainWinner = dy_r_check
+        dy_r_check = Thread(target=self.check_dyagonal_right())
+        self.thread_list.append(dy_r_check)
 
+        #start threads
+        self.thread_join_start()
+        self.thread_list = list()
         if self.graph_fill_check() == True:
             self.mainWinner = self.draw_val
 
+    def thread_join_start(self):
+        '''
+        ფუნქცია ემსახურება, run_check ფუნქციაში შექმნილი სრედების ჩართვას და მართ დაჯოინებას
+        '''
+        for th in self.thread_list:
+            th.start()
+        for th in self.thread_list:
+            th.join()
+
     def graph_fill_check(self):
+        '''
+        ფუნქცია ამოწმებს, შევსილია თუ არა მატრიცა ბოლომდე
+        '''
         for y in range(self.graph_length):
             for x in range(self.graph_length):
                 if self.graph[y][x] == None:
                     return False
         return True
-
-
-
-
-
-
-
-
 
 if __name__ == "__main__":
     print("run program from gui side")

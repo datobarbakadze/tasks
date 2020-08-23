@@ -34,7 +34,11 @@ class TicTacGui(Logic):
         self.root.resizable(False, False)
         self.root.title("Tic Tac Toe");
         self.root.iconbitmap(r'./images/tic.ico');
+
     def win(self):
+        '''
+        ფუნქცია პასუხისმგებელია გაუშვას ყველა საჭირო ფუნქცია, გამარჯვების ან ნიჩიის შემთხვევაშ
+        '''
         if self.mainWinner == self.draw_val:
             self.win_message(self.mainWinner)
 
@@ -44,24 +48,48 @@ class TicTacGui(Logic):
         if self.mainWinner == self.tok_val:
             self.win_message(self.mainWinner)
             self.increase_win_count(self.mainWinner)
-        self.mainWinner = None
-        self.graph_state(DISABLED)
+        self.mainWinner = None # გამარჯვებულის მნიშვნელობის საწყის პოზიციაში დაბრუნება
+        self.graph_state(DISABLED) # მატრიცის ღილაკების გათიშვა, რესტარტამდე
+
     def win_message(self,side):
+        '''
+        ქმნის და აჩვენებს შეტყობინებას იმის შესახებ თუ ვინ გაიმარჯვა
+
+        :param side: განსაზღვრავს გამარჯვებულის მხარეს
+        '''
         if side == self.tik_val:
             self.gen_win_msg("Tic Won")
         elif side == self.tok_val:
             self.gen_win_msg("Tac Won")
         elif side == self.draw_val:
             self.gen_win_msg("Draw")
+
     def gen_win_msg(self,Msg):
+        '''
+        ქმნის label widget-ს რომელზეც წერია გამარჯვებულის მესიჯი
+
+        :param Msg: მესიჯი რომელიც Label-ზე უნდა გამოჩნდეს
+        :return:
+        '''
         self.win_msg_label = Label(self.root,text=str(Msg),bg=self.danger_color, fg='white', font='Arial 15 bold',justify=CENTER,pady=10)
         self.win_msg_label.grid(row=(self.graph_length*self.graph_length)+6,sticky="we",columnspan=self.graph_length,ipady=10)
+
     def destroy_win_msg(self):
+        '''
+        ანადგურებს მესიჯს რომელიც გამარჯვების ან ნიჩიის შემთხვევაში გამოჩჰნდა,
+        ძირითადად ამ ფუნქციას იძახებს რესტარტ ფუნქცია
+        '''
         try:
             self.win_msg_label.destroy()
         except:
             pass
+
     def button_click(self,position):
+        '''
+        მნიშვნელობის ჩასაწერ ღილაკზე დაჭერა, ეს ღილაკებია ის კვადრატები რომელიც ჩანს ფანჯარაზე
+
+        :param position: რომელ პოზიციაზე დააჭირა მოთამაშემ
+        '''
         self.tic_tac(position)
         if self.turn == 0: # it should be compared to zero cause after tic or toc turn variable is changed
             self.button_list[position].configure({"text":"X"})
@@ -70,18 +98,31 @@ class TicTacGui(Logic):
         if self.mainWinner != None:
             self.win()
             self.update_wincount_label()
+
     def restart(self):
+        '''
+        ფუნქცია არესტარტებს თამაშს
+        '''
         self.clear_graph()
         self.graph_state(NORMAL)
         self.destroy_win_msg()
 
         print(self.graph_length_entry.get())
+
     def graph_state(self,state):
+        '''
+        ფუნქცია აუქმებს კვადრატულ ღილაკებზე დაჭერის უფლებას ან პირიქით
+        :param state: განსაძღვრავს ღილაკთა მდგომარეობს NORMAL ან DISABLED
+        '''
         for btn in self.button_list:
             btn.configure(state=state)
             if state == NORMAL:
                 btn.configure(text=' ')
+
     def update_wincount_label(self):
+        '''
+        ფუნქცია ანახლებს გამარჯვების მთვლელ მესიჯს, რომელიც ჩანს რესტარტ ღილაკის დაბლა
+        '''
         try:
             self.wincountlabel.destroy()
         except:
@@ -91,7 +132,10 @@ class TicTacGui(Logic):
         self.wincountlabel.grid(row=(self.graph_length*self.graph_length)+3,columnspan=self.graph_length)
 
     def reinitiate(self):
-
+        '''
+        ფუნქცია ანადგურებს მთელ ფანჯარას და ქმნის თავიდან,
+        გამოიყენება იმ შემთხვევაში თუ იუზერი მოინდომებს მატრიცის ფართობის გაზრდას
+        '''
         try:
             new_graph_length = self.graph_length_entry.get()
             self.graph_length = int(new_graph_length)
@@ -119,6 +163,9 @@ class TicTacGui(Logic):
             pass
 
     def create_elements(self):
+        '''
+        ფუნქცია ქმნის 90% ელემენტებისას ანუ ვიჯეტებისას ანუ ობიექტებისას
+        '''
         for i in range(self.graph_length*self.graph_length):
             Border = LabelFrame(self.root,bd=1, bg="#05f7eb", relief=FLAT)
             btn = Button(Border, activebackground=self.active_color,bd=0, text=' ', font='Arial 20 bold', bg=self.main_bg, fg='white', height=2,disabledforeground='white', width=6,command=lambda pos=i: self.button_click(pos))
@@ -129,7 +176,12 @@ class TicTacGui(Logic):
         self.graph_length_entry = Entry(self.root,bg='white',width=30,justify=CENTER)
         self.btn_reinitiate = btn = Button(self.root, activebackground=self.active_color,bd=0, text='Change graph', font='Arial 15 bold', bg=self.danger_color, fg='white', height=2,disabledforeground='white', width=15,command=lambda: self.reinitiate())
         # self.wincount_lable = Label
+
     def init_elements(self):
+        '''
+        ფუნქცია აკეთებს ზემოთ შექმნილი ელემენტების ინიციალიზაციას ანუ გამოსახავს მათ მთავარ ფანჯარაში
+
+        '''
         self.update_wincount_label()
         row_index=1
         column = 0
@@ -144,6 +196,9 @@ class TicTacGui(Logic):
         self.btn_reinitiate.grid(row=(self.graph_length*self.graph_length)+5,column=0,columnspan=self.graph_length,pady=5)
 
     def run(self):
+        '''
+        აპლიკაციის გამშვები ფუნქცია
+        '''
         self.create_elements()
         self.init_elements()
         self.root.mainloop()
