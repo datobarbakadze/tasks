@@ -2,7 +2,6 @@
 @name: tic tac toe with dynamic matrix, task completed for Luka Giorgobiani
 @file: responsible for tictoc game gui
 @AUTHOR: DATO BARBAKADZE
-@IDEA: MARINE DATA SCRAPER - SHIPS
 @begin date/time: Saturday August 22, year 2020 / 8.36pm
   ██████  ▒█████   ██▀███   ▄████▄  ▓█████  ██▀███  ▓█████  ██▀███
 ▒██    ▒ ▒██▒  ██▒▓██ ▒ ██▒▒██▀ ▀█  ▓█   ▀ ▓██ ▒ ██▒▓█   ▀ ▓██ ▒ ██▒
